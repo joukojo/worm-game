@@ -79,6 +79,9 @@ jobs:
     needs: build-release-assets
 
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
       - name: Download built assets
         uses: actions/download-artifact@v4
         with:
@@ -105,6 +108,7 @@ jobs:
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.event.release.tag_name }}
           files: |
             dist/*.tar.gz
             dist/*.sbom.spdx.json
@@ -114,7 +118,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release view "${GITHUB_REF_NAME}" --json body --jq '.body' > current-release-body.md
+          gh release view "${{ github.event.release.tag_name }}" --repo "${GITHUB_REPOSITORY}" --json body --jq '.body' > current-release-body.md
           awk '/^## Release Assets$/ { exit } { print }' current-release-body.md > base-release-body.md
           cat base-release-body.md release-assets.md > updated-release-body.md
-          gh release edit "${GITHUB_REF_NAME}" --notes-file updated-release-body.md
+          gh release edit "${{ github.event.release.tag_name }}" --repo "${GITHUB_REPOSITORY}" --notes-file updated-release-body.md
