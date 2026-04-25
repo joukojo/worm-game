@@ -1,0 +1,53 @@
+name: Release
+
+on:
+  release:
+    types:
+      - published
+
+permissions:
+  contents: write
+
+jobs:
+  build-release-binaries:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+          - goos: linux
+            goarch: arm64
+          - goos: darwin
+            goarch: amd64
+          - goos: darwin
+            goarch: arm64
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Build release archive
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 0
+        run: |
+          version="${GITHUB_REF_NAME}"
+          archive_name="worm-game_${version}_${GOOS}_${GOARCH}"
+          mkdir -p "dist/${archive_name}"
+          go build -o "dist/${archive_name}/worm-game" ./cmd/worm-game
+          cp README.md LICENSE "dist/${archive_name}/"
+          tar -C dist -czf "dist/${archive_name}.tar.gz" "${archive_name}"
+
+      - name: Upload release archive
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.tar.gz
