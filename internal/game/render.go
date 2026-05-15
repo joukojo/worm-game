@@ -72,7 +72,7 @@ func DrawTooSmall(screen tcell.Screen, message string, minWidth, minHeight int) 
 }
 
 func drawHorizontalBorder(screen tcell.Screen, x, y, width int, style tcell.Style) {
-	for i := 0; i < width; i++ {
+	for i := range width {
 		screen.SetContent(x+i, y, '#', nil, style)
 	}
 }
@@ -86,11 +86,4 @@ func drawText(screen tcell.Screen, x, y int, text string, style tcell.Style) {
 func screenWidth(screen tcell.Screen) int {
 	width, _ := screen.Size()
 	return width
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
 }
