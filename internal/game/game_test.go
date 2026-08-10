@@ -151,6 +151,24 @@ func TestDrawPlacesBordersAtBoardEdges(t *testing.T) {
 	assertRuneAt(t, screen, g.Width+1, g.Height+2, '#')
 }
 
+func TestDrawPlacesFoodInsideBoardAtEdgeCell(t *testing.T) {
+	g := New(4, 3, rand.New(rand.NewSource(1)))
+	g.Worm = []Point{{X: 1, Y: 1}, {X: 1, Y: 2}, {X: 0, Y: 2}}
+	g.Food = Point{X: g.Width - 1, Y: g.Height - 1}
+
+	screen := tcell.NewSimulationScreen("UTF-8")
+	if err := screen.Init(); err != nil {
+		t.Fatalf("failed to init simulation screen: %v", err)
+	}
+	screen.SetSize(g.Width+2, g.Height+4)
+
+	Draw(screen, g)
+
+	assertRuneAt(t, screen, g.Width, g.Height+1, '*')
+	assertRuneAt(t, screen, g.Width+1, g.Height+1, '#')
+	assertRuneAt(t, screen, g.Width, g.Height+2, '#')
+}
+
 func assertRuneAt(t *testing.T, screen tcell.Screen, x, y int, want rune) {
 	t.Helper()
 	got, _, _, _ := screen.GetContent(x, y)
