@@ -32,3 +32,7 @@ Controls are case-insensitive.
 ```bash
 go test ./...
 ```
+
+## Documentation
+
+- [Game structure and design notes](docs/architecture.md)
